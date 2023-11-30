@@ -1,5 +1,6 @@
 server:
   port: 9090
+
 spring:
   application:
     name: API-GATEWAY
@@ -7,15 +8,32 @@ spring:
     config:
       enabled: false
     gateway:
+      metrics:
+        enabled: true
       routes:
-        - id: PRODUCT_SERVICE
-          uri: lb://ORDER_SERVICE
+        - id: ORDER-SERVICE
+          uri: lb://ORDER-SERVICE
           predicates:
             - Path=/order/**
-        - id: PRODUCT_SERVICE
-          uri: lb://PRODUCT_SERVICE
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: ORDER-SERVICE
+                fallbackuri: forward:/orderServiceFallBack
+        - id: PRODUCT-SERVICE
+          uri: lb://PRODUCT-SERVICE
           predicates:
             - Path=/product/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: PRODUCT-SERVICE
+                fallbackuri: forward:/productServiceFallBack
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 1
+                redis-rate-limiter.burstCapacity: 1
+
 eureka:
   client:
     register-with-eureka: true

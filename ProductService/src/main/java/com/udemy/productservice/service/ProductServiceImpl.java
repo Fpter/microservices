@@ -32,8 +32,8 @@ public class ProductServiceImpl implements ProductService{
     @Override
     public ProductResponse getProductById(Long id) {
         log.info("Get product ...");
-//        Product product = productRepository.findById(id).orElseThrow(() ->
-//                new ProductServiceCustomException("Product not found " + id, "404"));
+        Product product = productRepository.findById(id).orElseThrow(() ->
+                new ProductServiceCustomException("Product not found " + id, "404"));
         ProductResponse productResponse = ProductResponse.builder()
 //                .productId(id)
 //                .price(product.getPrice())
